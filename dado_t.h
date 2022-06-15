@@ -4,6 +4,7 @@
     #include <stdbool.h>
 
     typedef struct {
+        bool eh_operador;
         char operador;
         float numero;
     } dado_t;

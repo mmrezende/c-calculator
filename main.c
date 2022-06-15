@@ -131,9 +131,9 @@ void gerencia_operador(dado_t op) {
     }
 }
 
-int main(void) {
+void calcula(char* expressao) {
     // Leitura da expressão
-    char expressao[TAMANHO_MAXIMO];
+    // char expressao[TAMANHO_MAXIMO];
     printf("\nInsira a expressão a ser calculada: ");
     fgets(expressao, sizeof(expressao), stdin);
 
@@ -172,6 +172,9 @@ int main(void) {
     // Libera memória alocada para as pilhas
     pilha_destroi(operacoes);
     pilha_destroi(numeros);
+}
+
+int main() {
 
     return EXIT_SUCCESS;
 }

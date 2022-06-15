@@ -10,19 +10,13 @@ struct no_t {
 };
 
 struct pilha_t {
-    int tamanho;
-    no_t* sent;
+    no_t* prim;
 };
 
 // cria uma pilha vazia, retorna um ponteiro para ela
 pilha_t* pilha_cria(void) {
     pilha_t* nova_pilha = malloc(sizeof(pilha_t));
-    nova_pilha->tamanho = 0;
-
-    no_t* sent = malloc(sizeof(no_t));
-    sent->prox = sent;
-
-    nova_pilha->sent = sent;
+    nova_pilha->prim = NULL;
 
     return nova_pilha;
 }
@@ -33,51 +27,46 @@ void pilha_destroi(pilha_t *p){
         pilha_remove(p);
     }
     
-    free(p->sent);
     free(p);
 }
 
 // retorna true se a pilha p não contiver nenhum dado
 bool pilha_vazia(pilha_t *p){
-    return(p->tamanho == 0);
+    return(p->prim == NULL);
 }
 
 // empilha o dado d no topo da pilha p
 void pilha_insere(pilha_t *p, dado_t d){
     no_t* novo = malloc(sizeof(no_t));
     
-    // Insere o dado após o sentinela e antes do topo da pilha
+    // Novo dado se torna o primeiro
     novo->dado = d;
-    novo->prox = p->sent->prox;
-    p->sent->prox = novo;
-
-    p->tamanho++;
+    novo->prox = p->prim;
+    p->prim = novo;
 }
 
 // remove e retorna o dado no topo da pilha p aborta com erro brabo se a pilha estiver vazia
 dado_t pilha_remove(pilha_t *p){
-    if(p->tamanho == 0){
+    if(pilha_vazia(p)){
         printf("\nErro: Tentativa de remoção em pilha vazia\n");
         exit(EXIT_FAILURE);
     }
 
-    no_t* vitima = p->sent->prox;
+    no_t* vitima = p->prim;
     dado_t removido = vitima->dado;
 
-    p->sent->prox = vitima->prox;
+    p->prim = vitima->prox;
     free(vitima);
-
-    p->tamanho--;
 
     return removido;   
 }
 
 // retorna o dado no topo da pilha p, sem removê-lo aborta com erro brabo se a pilha estiver vazia
 dado_t pilha_topo(pilha_t *p){
-    if(p->tamanho == 0){
+    if(pilha_vazia(p)){
         printf("\nErro: Tentativa de remoção em pilha vazia\n");
         exit(EXIT_FAILURE);
     }
 
-    return p->sent->prox->dado;
+    return p->prim->dado;
 }
