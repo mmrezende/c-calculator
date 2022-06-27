@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include "pilha.h"
 
-typedef struct no_t no_t;
+typedef struct no no_t;
 
-struct no_t {
+struct no {
     dado_t dado;
     no_t* prox;
 };
 
-struct pilha_t {
+struct pilha {
     no_t* prim;
 };
 
@@ -64,7 +64,7 @@ dado_t pilha_remove(pilha_t *p){
 // retorna o dado no topo da pilha p, sem removê-lo aborta com erro brabo se a pilha estiver vazia
 dado_t pilha_topo(pilha_t *p){
     if(pilha_vazia(p)){
-        printf("\nErro: Tentativa de remoção em pilha vazia\n");
+        printf("\nErro: Tentativa de leitura em pilha vazia\n");
         exit(EXIT_FAILURE);
     }
 

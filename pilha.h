@@ -6,7 +6,7 @@
     #include <stdbool.h>
 
     // o tipo de dados que representa uma pilha
-    typedef struct pilha_t pilha_t;
+    typedef struct pilha pilha_t;
 
     // cria uma pilha vazia, retorna um ponteiro para ela
     pilha_t *pilha_cria(void);
