@@ -8,62 +8,27 @@
 
 #define TAMANHO_MAXIMO 255
 
+fila_t* processa_expressao(char* exp) {
+    fila_t* atomos = fila_cria();
+
+    return atomos;
+}
+
+// Lógica da calculadora
+dado_t calcula(char* exp) {
+    fila_t* expressao = processa_expressao(exp);
+
+    dado_t resultado;
+    resultado.eh_operador = false;
+    resultado.numero = -1;
+
+    return resultado;
+}
+
 int main() {
-    // fila_t* f = fila_cria();
+    dado_t resultado = calcula("2 + 3 * 5");
 
-    // fila_insere(f, 2);
-    // fila_imprime(f);
-
-    // fila_insere(f, 5);
-    // fila_imprime(f);
-
-    // fila_remove(f);
-    // fila_imprime(f);
-
-    // fila_insere(f, 3);
-    // fila_imprime(f);
-
-    // fila_insere(f, 8);
-    // fila_imprime(f);
-
-    // fila_remove(f);
-    // fila_imprime(f);
-
-    // fila_insere(f, 9);
-    // fila_imprime(f);
-
-    // while(!fila_vazia(f)) {
-    //     fila_remove(f);
-    //     fila_imprime(f);
-    // }
-
-    pilha_t* p = pilha_cria();
-
-    pilha_insere(p, 2);
-    pilha_imprime(p);
-
-    pilha_insere(p, 5);
-    pilha_imprime(p);
-
-    pilha_remove(p);
-    pilha_imprime(p);
-
-    pilha_insere(p, 3);
-    pilha_imprime(p);
-
-    pilha_insere(p, 8);
-    pilha_imprime(p);
-
-    pilha_remove(p);
-    pilha_imprime(p);
-
-    pilha_insere(p, 9);
-    pilha_imprime(p);
-
-    while(!pilha_vazia(p)) {
-        pilha_remove(p);
-        pilha_imprime(p);
-    }
+    imprime_dado(resultado);
 
     return EXIT_SUCCESS;
 }

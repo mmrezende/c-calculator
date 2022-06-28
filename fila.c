@@ -88,7 +88,7 @@ void fila_imprime(fila_t *f) {
     no_t* atual = f->ult;
     do {
         atual = atual->prox;
-        printf("%f ",atual->dado);
+        imprime_dado(atual->dado);
     }while(atual != f->ult);
     printf("\n");
 }

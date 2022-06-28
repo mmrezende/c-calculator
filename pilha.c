@@ -78,7 +78,7 @@ void pilha_imprime(pilha_t *p) {
 
     no_t* atual = p->prim;
     while(atual != NULL) {
-        printf("%f ",atual->dado);
+        imprime_dado(atual->dado);
         atual = atual->prox;
     }
     printf("\n");
