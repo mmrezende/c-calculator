@@ -70,3 +70,16 @@ dado_t pilha_topo(pilha_t *p){
 
     return p->prim->dado;
 }
+
+void pilha_imprime(pilha_t *p) {
+    if(pilha_vazia(p)) {
+        printf("\n");
+    }
+
+    no_t* atual = p->prim;
+    while(atual != NULL) {
+        printf("%f ",atual->dado);
+        atual = atual->prox;
+    }
+    printf("\n");
+}

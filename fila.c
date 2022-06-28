@@ -45,6 +45,7 @@ void fila_insere(fila_t *f, dado_t d){
         novo->prox = novo;
     }else {
         novo->prox = f->ult->prox;
+        f->ult->prox = novo;
     }
     
     f->ult = novo;
@@ -67,7 +68,7 @@ dado_t fila_remove(fila_t *f){
 
     free(vitima);
 
-    return removido;   
+    return removido;
 }
 
 // retorna o dado no topo da fila p, sem removê-lo aborta com erro brabo se a fila estiver vazia
@@ -78,4 +79,16 @@ dado_t fila_proximo(fila_t *p){
     }
 
     return p->ult->prox->dado;
+}
+
+void fila_imprime(fila_t *f) {
+    if(fila_vazia(f)) {
+        printf("\n");
+    }
+    no_t* atual = f->ult;
+    do {
+        atual = atual->prox;
+        printf("%f ",atual->dado);
+    }while(atual != f->ult);
+    printf("\n");
 }
