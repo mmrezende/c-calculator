@@ -49,14 +49,10 @@ fila_t* processa_expressao(char* exp) {
         atomo.eh_operador = false;
         atomo.numero = atof(numero);
         fila_insere(atomos, atomo);
-
-        lendo_numero = false;
-        numero[0] = '\0';
     }
     atomo.eh_operador = true;
     atomo.operador = '\0';
-
-    fila_imprime(atomos);
+    fila_insere(atomos, atomo);
 
     return atomos;
 }
@@ -91,6 +87,7 @@ void opera(char op, pilha_t* numeros) {
             resultado.numero = pow(n1,n2);
             break;
         default:
+            printf("%c", op);
             erro("Operador não suportado");
     }
 
@@ -99,6 +96,9 @@ void opera(char op, pilha_t* numeros) {
 
 // Retorna true caso a entrada tenha precedência sobre o operador da pilha
 bool precede(char entrada, char pilha) {
+    if(pilha == '(') {
+        return true;
+    }
     switch(entrada) {
         case '^':
             return true;
@@ -144,10 +144,6 @@ dado_t calcula(char* exp) {
                     }
                     opera(operador, numeros);
                 }
-
-                if(pilha_vazia(operadores) && operador != '(') {
-                    erro("Falta de abertura de parênteses");
-                }
                 break;
             default:
                 while(!pilha_vazia(operadores) && !precede(atomo.operador, pilha_topo(operadores).operador)) {
@@ -166,7 +162,6 @@ dado_t calcula(char* exp) {
         erro("Falta de operandos");
     }
 
-    pilha_imprime(numeros);
     dado_t resultado = pilha_remove(numeros);
     
     if(!pilha_vazia(numeros)) {
@@ -177,22 +172,10 @@ dado_t calcula(char* exp) {
 }
 
 int main() {
-    dado_t resultado = calcula("2 + 3 * 5");
-
-    dado_t n1,n2;
-    n1.eh_operador = false;
-    n2.eh_operador = false;
-    n1.numero = 8;
-    n2.numero = 3;
-    pilha_t* numeros = pilha_cria();
-    pilha_insere(numeros, n1);
-    pilha_insere(numeros, n2);
-    pilha_imprime(numeros);
-    opera('^', numeros);
-
-    pilha_imprime(numeros);
+    dado_t resultado = calcula("(1 + (1 + 2 * (3+5))^2)/2");
 
     imprime_dado(resultado);
+    printf("\n");
 
     return EXIT_SUCCESS;
 }
