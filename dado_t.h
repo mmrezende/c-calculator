@@ -6,7 +6,7 @@
     typedef struct {
         bool eh_operador;
         char operador;
-        float numero;
+        double numero;
     } dado_t;
 
     // Imprime o conteúdo de um dado_t

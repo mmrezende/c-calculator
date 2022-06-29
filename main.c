@@ -61,12 +61,12 @@ void opera(char op, pilha_t* numeros) {
     if(pilha_vazia(numeros)) {
         erro("Falta de operandos");
     }
-    float n2 = pilha_remove(numeros).numero;
+    double n2 = pilha_remove(numeros).numero;
 
     if(pilha_vazia(numeros)) {
         erro("Falta de operandos");
     }
-    float n1 = pilha_remove(numeros).numero;
+    double n1 = pilha_remove(numeros).numero;
 
     dado_t resultado;
     resultado.eh_operador = false;
