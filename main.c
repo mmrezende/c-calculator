@@ -176,8 +176,18 @@ dado_t calcula(char* exp) {
 }
 
 int main() {
-    dado_t resultado = calcula("(1 + (1 + 2 * (3+5))^2)/2");
+    // dado_t resultado = calcula("(1 + (1 + 2 * (3+5))^2)/2");
 
+    // imprime_dado(resultado);
+    // printf("\n");
+
+    char entrada[TAMANHO_MAXIMO];
+
+    printf("Digite a expressão desejada: ");
+    fgets(entrada, sizeof(entrada), stdin);
+    dado_t resultado = calcula(entrada);
+
+    printf("\n");
     imprime_dado(resultado);
     printf("\n");
 
