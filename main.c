@@ -168,9 +168,9 @@ dado_t calcula(char* exp) {
         erro("Falta de operadores");
     }
 
-    fila_remove(expressao);
-    pilha_remove(numeros);
-    pilha_remove(operadores);
+    fila_destroi(expressao);
+    pilha_destroi(numeros);
+    pilha_destroi(operadores);
 
     return resultado;
 }
