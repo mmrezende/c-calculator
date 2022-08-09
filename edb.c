@@ -8,6 +8,7 @@ struct no {
     valor_t valor;
     no_t* esq;
     no_t* dir;
+    int altura;
 };
 
 struct edb {
@@ -15,6 +16,9 @@ struct edb {
 };
 
 // -------------------------------- Funções auxiliares --------------------------------
+#ifndef max
+    #define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
 bool edb_vazia(edb_t* edb) {
 	return edb->raiz == NULL;
 }
@@ -27,6 +31,65 @@ char* get_chave_valor(valor_t* valor) {
   return valor->nome;
 }
 
+int altura(no_t *no)
+{
+    if (no_folha(no)) return 0;
+    return no->altura;
+}
+
+void calcula_altura(no_t *no)
+{
+    int alt_esq = altura(no->esq);
+    int alt_dir = altura(no->dir);
+    no->altura = max(alt_esq, alt_dir) + 1;
+}
+
+int fb(no_t* no) {
+    return altura(no->esq) - altura(no->dir);
+}
+
+no_t* rotacao_esquerda(no_t* no)
+{
+    no_t *x = no;
+    no_t *y = x->dir;
+    no_t *b = y->esq;
+
+    x->dir = b;
+    y->esq = x;
+
+    calcula_altura(x);
+    calcula_altura(y);
+
+    return y;
+}
+
+no_t* rotacao_direita(no_t* no)
+{
+    no_t *x = no;
+    no_t *y = x->esq;
+    no_t *b = y->dir;
+
+    x->esq = b;
+    y->dir = x;
+
+    calcula_altura(x);
+    calcula_altura(y);
+
+    return y;
+}
+
+no_t* rotacao_dupla_esquerda(no_t* no)
+{
+    no->esq = rotacao_direita(no->esq);
+    return rotacao_esquerda(no);
+}
+
+no_t* rotacao_dupla_direita(no_t* no)
+{
+    no->dir = rotacao_esquerda(no->dir);
+    return rotacao_direita(no);
+}
+
 // -------------------------------- Funções da árvore de busca --------------------------------
 
 // Aloca e inicia um nó folha
@@ -35,6 +98,7 @@ no_t* arv_cria(valor_t valor) {
     novo->valor = valor;
     novo->dir = NULL;
     novo->esq = NULL;
+    novo->altura = 0;
 
     return novo;
 }
@@ -135,12 +199,12 @@ edb_t *edb_cria(void) {
 	edb->raiz = NULL;
 
 	return edb;
-};
+}
 
 void edb_destroi(edb_t *edb) {
     arv_destroi(edb->raiz);
     free(edb);
-};
+}
 
 // Insere o valor associado à chave
 void edb_insere(edb_t *edb, chave_t chave, valor_t valor) {
@@ -150,7 +214,7 @@ void edb_insere(edb_t *edb, chave_t chave, valor_t valor) {
     }
 
     arv_insere(edb->raiz, chave, valor);
-};
+}
 
 // Remove o valor associado à chave
 void edb_remove(edb_t *edb, chave_t chave) {
@@ -161,7 +225,7 @@ void edb_remove(edb_t *edb, chave_t chave) {
     edb->raiz = arv_remove(edb->raiz, chave);
 };
 
-// Retorna (por ref) o valor associado a chave (e true) ou nao (false)
+// Retorna (por ref.) o valor associado a chave (e true) ou nao (false)
 bool edb_busca(edb_t *edb, chave_t chave, valor_t *pvalor) {
 
     if(edb_vazia(edb)) return false;

@@ -3,7 +3,7 @@
 
 // edb - estrutura de dados de busca
 
-// permite a inclusão de dados associados a chaves, e a busca e remoção de
+// permite a inclusão de dados associados a chaves, a busca e remoção de
 //   dados a partir da chave
 
 #include <stdbool.h>
@@ -21,7 +21,7 @@ void edb_destroi(edb_t *edb);
 void edb_insere(edb_t *edb, chave_t chave, valor_t valor);
 // remove o valor associado a chave
 void edb_remove(edb_t *edb, chave_t chave);
-// retorna (por ref) o valor associado a chave (e true) ou nao (e false)
+// retorna (por ref.) o valor associado a chave (e true) ou nao (e false)
 bool edb_busca(edb_t *edb, chave_t chave, valor_t *pvalor);
 
 #endif // _EDB_H_
