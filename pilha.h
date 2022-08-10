@@ -1,9 +1,9 @@
 #ifndef _PILHA_H_
     #define _PILHA_H_
 
-    #include "dado_t.h"  // para a definição de dado_t
-
     #include <stdbool.h>
+
+    #include "tipos.h"  // para a definição de dado_t
 
     // o tipo de dados que representa uma pilha
     typedef struct pilha pilha_t;

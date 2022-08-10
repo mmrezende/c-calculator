@@ -3,11 +3,13 @@
 #include <string.h>
 #include <math.h>
 
+#include "tipos.h"
 #include "pilha.h"
 #include "fila.h"
+#include "edb.h"
 
 #define TAMANHO_MAXIMO 255
-#define OPERADORES "+-*/()^\0"
+#define OPERADORES "+-*/()^\0="
 #define ALGARISMOS "0123456789."
 
 void erro(char* mensagem) {
@@ -29,14 +31,14 @@ fila_t* processa_expressao(char* exp) {
     for(char* c = exp; *c != '\0'; c++) {
         if(strchr(OPERADORES, *c) != NULL) {
             if(lendo_numero) {
-                atomo.eh_operador = false;
+                atomo.tipo = NUMERO;
                 atomo.numero = atof(numero);
                 fila_insere(atomos, atomo);
 
                 lendo_numero = false;
                 numero[0] = '\0';
             }
-            atomo.eh_operador = true;
+            atomo.TIPO = OPERADOR;
             atomo.operador = *c;
             fila_insere(atomos, atomo);
         }else if(strchr(ALGARISMOS, *c) != NULL){
@@ -46,11 +48,11 @@ fila_t* processa_expressao(char* exp) {
     }
 
     if(lendo_numero) {
-        atomo.eh_operador = false;
+        atomo.tipo = NUMERO;
         atomo.numero = atof(numero);
         fila_insere(atomos, atomo);
     }
-    atomo.eh_operador = true;
+    atomo.tipo = OPERADOR;
     atomo.operador = '\0';
     fila_insere(atomos, atomo);
 
@@ -69,7 +71,7 @@ void opera(char op, pilha_t* numeros) {
     double n1 = pilha_remove(numeros).numero;
 
     dado_t resultado;
-    resultado.eh_operador = false;
+    resultado.tipo = NUMERO;
     switch (op) {
         case '+':
             resultado.numero = n1 + n2;
@@ -119,7 +121,7 @@ dado_t calcula(char* exp) {
     while(!fila_vazia(expressao)) {
         dado_t atomo = fila_remove(expressao);
         char operador;
-        if(atomo.eh_operador) {
+        if(atomo.tipo == OPERADOR) {
             switch (atomo.operador)
             {
             case '(':

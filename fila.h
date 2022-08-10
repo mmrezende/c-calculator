@@ -1,9 +1,9 @@
 #ifndef _FILA_H_
     #define _FILA_H_
 
-    #include "dado_t.h"  // para a definição de dado_t
-
     #include <stdbool.h>
+
+    #include "tipos.h"  // para a definição de dado_t
 
     // o tipo de dados que representa uma fila
     typedef struct fila fila_t;
