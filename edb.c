@@ -207,7 +207,7 @@ no_t* arv_remove(no_t* no, chave_t chave) {
                 substituto->valor = aux;
 
                 // Continua a remoção recursivamente
-                arv_remove(no->esq, chave);
+                no->esq = arv_remove(no->esq, chave);
             }else {
                 // Encontra o nó substituto (menor da sub-árvore direita)
                 no_t* substituto = menor_no(no->dir);
@@ -218,7 +218,7 @@ no_t* arv_remove(no_t* no, chave_t chave) {
                 substituto->valor = aux;
 
                 // Continua a remoção recursivamente
-                arv_remove(no->dir, chave);
+                no->dir = arv_remove(no->dir, chave);
             }
         }
     }else if(comp < 0) {
