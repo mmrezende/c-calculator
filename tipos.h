@@ -16,6 +16,8 @@ typedef char *chave_t;
   >0 - se chave corresponde a valor que deve estar depois do valor */
 int compara_chave_valor(chave_t chave, valor_t valor);
 
+void imprime_valor(valor_t valor);
+
 /** Obtêm a chave relativa a um valor */
 char* get_chave_valor(valor_t* valor);
 

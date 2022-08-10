@@ -1,6 +1,7 @@
 #include "edb.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef struct no no_t;
 
@@ -192,6 +193,18 @@ no_t* arv_remove(no_t* no, chave_t chave) {
     return no;
 }
 
+void arv_imprime(no_t* no, int tabs) {
+    if(no == NULL) return;
+
+    printf("%*s", tabs * 5, ""); 
+    imprime_valor(no->valor);
+    printf("\n");
+
+    arv_imprime(no->esq, tabs+1);
+
+    arv_imprime(no->dir, tabs+1);
+}
+
 // -------------------------------- Funções da interface do TAD --------------------------------
 
 edb_t *edb_cria(void) {
@@ -236,4 +249,11 @@ bool edb_busca(edb_t *edb, chave_t chave, valor_t *pvalor) {
 
     *pvalor = encontrado->valor;
     return true;
+}
+
+// Imprime a árvore usada pela estrutura de busca
+void edb_arv_imprime(edb_t* edb) {
+    no_t* raiz = edb->raiz;
+
+    arv_imprime(raiz, 0);
 }

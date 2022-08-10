@@ -4,11 +4,6 @@
 
 // programa de teste de edb
 
-int compara_chave_valor(chave_t c, valor_t v)
-{
-  return strcmp(c, v.nome);
-}
-
 int main()
 {
   edb_t *cad;
@@ -35,6 +30,7 @@ int main()
       printf("A média é %.2f\n", v.nota1/2.0 + v.nota2/2.0);
     }
   }
+  edb_arv_imprime(cad);
   edb_destroi(cad);
 }
 
