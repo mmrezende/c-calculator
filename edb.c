@@ -28,10 +28,6 @@ bool no_folha(no_t* no) {
     return no->esq == NULL && no->dir == NULL;
 }
 
-char* get_chave_valor(valor_t* valor) {
-  return valor->nome;
-}
-
 // ---------------------------------------- Funções da árvore de busca -------------------------------------------------
 
 // Aloca e inicia um nó folha
