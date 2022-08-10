@@ -150,6 +150,7 @@ void arv_insere(no_t* no, chave_t chave, valor_t valor) {
     int comp = compara_chave_valor(chave, no->valor);
     if(comp == 0) { // Substitui o valor do nó atual
         no->valor = valor;
+        return;
     }
 
     if(comp < 0) {
@@ -158,13 +159,13 @@ void arv_insere(no_t* no, chave_t chave, valor_t valor) {
             return;
         }
         arv_insere(no->esq, chave, valor);
+    }else {
+        if(no->dir == NULL) {
+            no->dir = arv_cria(valor);
+            return;
+        }
+        arv_insere(no->dir, chave, valor);
     }
-
-    if(no->dir == NULL) {
-        no->dir = arv_cria(valor);
-        return;
-    }
-    arv_insere(no->dir, chave, valor);
 }
 
 // Encontra e remove um nó e reestrutura a árvore (sem balanceamento, por enquanto)
@@ -193,12 +194,12 @@ no_t* arv_remove(no_t* no, chave_t chave) {
     return no;
 }
 
+// Percurso em profundidade com pré-visita à esquerda
 void arv_imprime(no_t* no, int tabs) {
     if(no == NULL) return;
 
-    printf("%*s", tabs * 5, ""); 
+    printf("%*s", tabs * 5, "");
     imprime_valor(no->valor);
-    printf("\n");
 
     arv_imprime(no->esq, tabs+1);
 
