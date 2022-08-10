@@ -32,9 +32,28 @@ char* get_chave_valor(valor_t* valor) {
   return valor->nome;
 }
 
+// ---------------------------------------- Funções da árvore de busca -------------------------------------------------
+
+// Aloca e inicia um nó folha
+no_t* arv_cria(valor_t valor) {
+    no_t* novo = malloc(sizeof(no_t));
+    novo->valor = valor;
+    novo->dir = NULL;
+    novo->esq = NULL;
+    novo->altura = 0;
+
+    return novo;
+}
+
+// Retorna true se o nó é uma árvore vazia, e false, caso contrário
+bool arv_vazia(no_t* no) {
+    return no == NULL;
+}
+
+
 int altura(no_t *no)
 {
-    if (no_folha(no)) return 0;
+    if (arv_vazia(no)) return 0;
     return no->altura;
 }
 
@@ -45,18 +64,17 @@ void calcula_altura(no_t *no)
     no->altura = max(alt_esq, alt_dir) + 1;
 }
 
-int fb(no_t* no) {
+int fator_balanceamento(no_t* no) {
     return altura(no->esq) - altura(no->dir);
 }
 
-no_t* rotacao_esquerda(no_t* no)
+no_t* rotacao_esquerda(no_t* x)
 {
-    no_t *x = no;
-    no_t *y = x->dir;
-    no_t *b = y->esq;
+    no_t *y = x->esq;
+    no_t *b = y->dir;
 
-    x->dir = b;
-    y->esq = x;
+    x->esq = b;
+    y->dir = x;
 
     calcula_altura(x);
     calcula_altura(y);
@@ -64,14 +82,13 @@ no_t* rotacao_esquerda(no_t* no)
     return y;
 }
 
-no_t* rotacao_direita(no_t* no)
+no_t* rotacao_direita(no_t* x)
 {
-    no_t *x = no;
-    no_t *y = x->esq;
-    no_t *b = y->dir;
+    no_t *y = x->dir;
+    no_t *b = y->esq;
 
-    x->esq = b;
-    y->dir = x;
+    x->dir = b;
+    y->esq = x;
 
     calcula_altura(x);
     calcula_altura(y);
@@ -91,17 +108,26 @@ no_t* rotacao_dupla_direita(no_t* no)
     return rotacao_direita(no);
 }
 
-// -------------------------------- Funções da árvore de busca --------------------------------
+// Reequilibra a árvore usando o fator de balanceamento (FB) a partir de um nó
+no_t* arv_equilibra(no_t* no) {
+    if(arv_vazia(no)) return no;
 
-// Aloca e inicia um nó folha
-no_t* arv_cria(valor_t valor) {
-    no_t* novo = malloc(sizeof(no_t));
-    novo->valor = valor;
-    novo->dir = NULL;
-    novo->esq = NULL;
-    novo->altura = 0;
+    calcula_altura(no);
 
-    return novo;
+    int fb = fator_balanceamento(no);
+    if(abs(fb) <= 1) return no; // Nó já está balanceado
+
+    if (fb > 1) {
+        if (fator_balanceamento(no->esq) <= -1) {
+            return rotacao_dupla_esquerda(no);
+        }
+        return rotacao_esquerda(no);
+    }else {
+        if (fator_balanceamento(no->dir) >= 1) {
+            return rotacao_dupla_direita(no);
+        }
+        return rotacao_direita(no);
+    }
 }
 
 // Busca e retorna um nó na estrutura da árvore, retorna NULL se não encontrado
@@ -129,7 +155,7 @@ void arv_destroi(no_t *no) {
     free(no);
 }
 
-// Retorna um ponteiro para o nó mais à direita a partir de outro nó
+// Retorna o ponteiro para o nó mais à direita a partir de outro nó
 no_t* maior_no(no_t* no) {
     no_t* prox = no->dir;
     if(prox == NULL) return no;
@@ -137,7 +163,7 @@ no_t* maior_no(no_t* no) {
     return maior_no(prox);
 }
 
-// Retorna um ponteiro para o nó mais à esquerda a partir de outro nó
+// Retorna o ponteiro para o nó mais à esquerda a partir de outro nó
 no_t* menor_no(no_t* no) {
     no_t* prox = no->esq;
     if(prox == NULL) return no;
@@ -145,53 +171,67 @@ no_t* menor_no(no_t* no) {
     return menor_no(prox);
 }
 
-// Insere um valor na árvore, respeitando a hierarquia
-void arv_insere(no_t* no, chave_t chave, valor_t valor) {
+// Insere um valor na árvore, respeitando a hierarquia e retorna um ponteiro para o nó inserido
+no_t* arv_insere(no_t* no, chave_t chave, valor_t valor) {
+    if(arv_vazia(no)){
+        no = arv_cria(valor);
+        return no;
+    }
+
     int comp = compara_chave_valor(chave, no->valor);
     if(comp == 0) { // Substitui o valor do nó atual
         no->valor = valor;
-        return;
+    }else if(comp < 0) {
+        no->esq = arv_insere(no->esq, chave, valor);
+    }else {
+        no->dir = arv_insere(no->dir, chave, valor);
     }
 
-    if(comp < 0) {
-        if(no->esq == NULL) {
-            no->esq = arv_cria(valor);
-            return;
-        }
-        arv_insere(no->esq, chave, valor);
-    }else {
-        if(no->dir == NULL) {
-            no->dir = arv_cria(valor);
-            return;
-        }
-        arv_insere(no->dir, chave, valor);
-    }
+    return arv_equilibra(no);
 }
 
-// Encontra e remove um nó e reestrutura a árvore (sem balanceamento, por enquanto)
+// Encontra e remove um nó e reestrutura a árvore (com balanceamento AVL)
 no_t* arv_remove(no_t* no, chave_t chave) {
-    if(no == NULL) return NULL;
-
+    if(arv_vazia(no)) {
+        return NULL;
+    }
     int comp = compara_chave_valor(chave, no->valor);
     if(comp == 0) {
-        if(no->esq != NULL) {
-            no->valor = maior_no(no->esq)->valor;
-            no->esq = arv_remove(no->esq, get_chave_valor(&no->valor));
-        }else if(no->dir != NULL) {
-            no->valor = menor_no(no->dir)->valor;
-            no->dir = arv_remove(no->dir, get_chave_valor(&no->valor));
-        }else {
+        if(no_folha(no)) {
             free(no);
-            return NULL;
+            no = NULL;
+        }else {
+            if(!arv_vazia(no->esq)) {
+                // Encontra o nó substituto (maior da sub-árvore esquerda)
+                no_t* substituto = maior_no(no->esq);
+
+                // Troca o valor do substituto com o nó vítima (a ser removido)
+                valor_t aux = no->valor;
+                no->valor = substituto->valor;
+                substituto->valor = aux;
+
+                // Continua a remoção recursivamente
+                arv_remove(no->esq, chave);
+            }else {
+                // Encontra o nó substituto (menor da sub-árvore direita)
+                no_t* substituto = menor_no(no->dir);
+
+                // Troca o valor do substituto com o nó vítima (a ser removido)
+                valor_t aux = no->valor;
+                no->valor = substituto->valor;
+                substituto->valor = aux;
+
+                // Continua a remoção recursivamente
+                arv_remove(no->dir, chave);
+            }
         }
-        
-    }else if(comp > 0) {
-        no->dir = arv_remove(no->dir, chave);
-    }else {
+    }else if(comp < 0) {
         no->esq = arv_remove(no->esq, chave);
+    }else {
+        no->dir = arv_remove(no->dir, chave);
     }
-    
-    return no;
+
+    return arv_equilibra(no);
 }
 
 // Percurso em profundidade com pré-visita à esquerda
@@ -201,9 +241,8 @@ void arv_imprime(no_t* no, int tabs) {
     printf("%*s", tabs * 5, "");
     imprime_valor(no->valor);
 
-    arv_imprime(no->esq, tabs+1);
-
     arv_imprime(no->dir, tabs+1);
+    arv_imprime(no->esq, tabs+1);
 }
 
 // -------------------------------- Funções da interface do TAD --------------------------------
@@ -222,20 +261,11 @@ void edb_destroi(edb_t *edb) {
 
 // Insere o valor associado à chave
 void edb_insere(edb_t *edb, chave_t chave, valor_t valor) {
-    if(edb_vazia(edb)) {
-        edb->raiz = arv_cria(valor);
-        return;
-    }
-
-    arv_insere(edb->raiz, chave, valor);
+    edb->raiz = arv_insere(edb->raiz, chave, valor);
 }
 
 // Remove o valor associado à chave
 void edb_remove(edb_t *edb, chave_t chave) {
-    if(edb_vazia(edb)) {
-        return;
-    }
-
     edb->raiz = arv_remove(edb->raiz, chave);
 };
 
