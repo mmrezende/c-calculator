@@ -1,7 +1,9 @@
-#include "edb.h"
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#include "tipos.h"
+#include "edb.h"
 
 typedef struct no no_t;
 

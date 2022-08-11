@@ -1,19 +1,24 @@
 #include <string.h>
 #include <stdio.h>
-#include "tipos.h"
+#include <inttypes.h>
 
-// Imprime o conteúdo de um dado_t
-void imprime_dado(dado_t dado) {
-    if(dado.eh_operador) {
-        printf("%c ", dado.operador);
-    }else {
-        printf("%lf ", dado.numero);
-    }
-}
+#include "tipos.h"
+#include "edb.h"
 
 // Imprime o conteúdo de um valor_t
 void imprime_valor(valor_t valor) {
     printf("%lf", valor);
+}
+
+// Imprime o conteúdo de um dado_t
+void imprime_dado(dado_t dado) {
+    if(dado.tipo == OPERADOR) {
+        printf("%c ", dado.operador);
+    }else if(dado.tipo == NUMERO){
+        printf("%lf ", dado.numero);
+    }else {
+        printf(dado.variavel);
+    }
 }
 
 /**
@@ -24,5 +29,5 @@ void imprime_valor(valor_t valor) {
  */
 int compara_chave_valor(chave_t c, valor_t v)
 {
-    return strtoumax(c) > v;
+    return strcmp(c, v.variavel);
 }

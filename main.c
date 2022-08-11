@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "tipos.h"
 #include "pilha.h"
@@ -11,6 +12,7 @@
 #define TAMANHO_MAXIMO 255
 #define OPERADORES "+-*/()^\0="
 #define ALGARISMOS "0123456789."
+#define CARACTERES "abcdefghijklmnopqrstuvwxyz"
 
 void erro(char* mensagem) {
     printf("Erro: ");
@@ -22,36 +24,58 @@ void erro(char* mensagem) {
 fila_t* processa_expressao(char* exp) {
     fila_t* atomos = fila_cria();
     dado_t atomo;
-    
-    bool lendo_numero = false;
 
-    char numero[TAMANHO_MAXIMO];
-    numero[0] = '\0';
+    bool lendo_numero = false;
+    bool lendo_variavel = false;
+
+    char buffer[TAMANHO_MAXIMO];
+    buffer[0] = '\0';
 
     for(char* c = exp; *c != '\0'; c++) {
         if(strchr(OPERADORES, *c) != NULL) {
-            if(lendo_numero) {
+            if(lendo_variavel){
+                atomo.tipo = VARIAVEL;
+                strcpy(atomo.variavel, buffer);
+                fila_insere(atomos, atomo);
+
+                lendo_variavel = false;
+                buffer[0] = '\0';
+            }else if(lendo_numero) {
                 atomo.tipo = NUMERO;
-                atomo.numero = atof(numero);
+                atomo.numero = atof(buffer);
                 fila_insere(atomos, atomo);
 
                 lendo_numero = false;
-                numero[0] = '\0';
+                buffer[0] = '\0';
             }
-            atomo.TIPO = OPERADOR;
+            atomo.tipo = OPERADOR;
             atomo.operador = *c;
             fila_insere(atomos, atomo);
+        }else if(isalpha(*c) != 0 || (lendo_variavel && (strchr(ALGARISMOS, *c) != NULL || *c == '_'))) {
+            if(lendo_numero) {
+                erro("Falta de operador");
+            }
+            lendo_variavel = true;
+            strcat(buffer, c);
         }else if(strchr(ALGARISMOS, *c) != NULL){
+            if(lendo_variavel) {
+                erro("Falta de operador");
+            }
             lendo_numero = true;
-            strcat(numero, c);
+            strcat(buffer, c);
         }
     }
 
-    if(lendo_numero) {
+    // Insere o conteúdo do buffer, caso esteja sendo lido
+    if(lendo_variavel) {
+
+    }else if(lendo_numero) {
         atomo.tipo = NUMERO;
-        atomo.numero = atof(numero);
+        atomo.numero = atof(buffer);
         fila_insere(atomos, atomo);
     }
+
+    // Insere o operador de fim de expressão
     atomo.tipo = OPERADOR;
     atomo.operador = '\0';
     fila_insere(atomos, atomo);
@@ -117,6 +141,7 @@ dado_t calcula(char* exp) {
 
     pilha_t* operadores = pilha_cria();
     pilha_t* numeros = pilha_cria();
+    edb_t* variaveis = edb_cria();
 
     while(!fila_vazia(expressao)) {
         dado_t atomo = fila_remove(expressao);
@@ -173,6 +198,7 @@ dado_t calcula(char* exp) {
     fila_destroi(expressao);
     pilha_destroi(numeros);
     pilha_destroi(operadores);
+    edb_destroi(variaveis);
 
     return resultado;
 }

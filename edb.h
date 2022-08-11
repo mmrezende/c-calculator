@@ -4,7 +4,7 @@
 // edb - estrutura de dados de busca
 
 // permite a inclusão de dados associados a chaves, a busca e remoção de
-//   dados //https://github.com/mateusmdr/t5-ed22aa partir da chave
+//   dados a partir da chave
 
 #include <stdbool.h>
 #include "tipos.h"

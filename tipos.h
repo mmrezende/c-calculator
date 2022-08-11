@@ -1,15 +1,18 @@
 #ifndef _TIPOS_H_
 #define _TIPOS_H_
 
-typedef double valor_t;
 typedef char* chave_t;
+typedef struct {
+    chave_t variavel;
+    double numero;
+} valor_t;
 
-enum TIPOS {OPERADOR, NUMERO, VARIAVEL};
+typedef enum {OPERADOR, NUMERO, VARIAVEL} TIPOS;
 
 typedef struct {
     TIPOS tipo;
     char operador;
-    valor_t numero;
+    double numero;
     chave_t variavel;
 } dado_t;
 
