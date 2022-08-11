@@ -26,6 +26,6 @@
     // retorna o dado no topo da pilha p, sem removê-lo; aborta com erro brabo se a pilha estiver vazia
     dado_t pilha_topo(pilha_t *p);
 
-    // imprime todo o conteúdo da pilha p
+    // imprime o conteúdo da pilha p
     void pilha_imprime(pilha_t *p);
 #endif

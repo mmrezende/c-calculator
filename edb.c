@@ -150,6 +150,7 @@ void arv_destroi(no_t *no) {
 
     arv_destroi(no->esq);
     arv_destroi(no->dir);
+    libera_valor(no->valor);
     free(no);
 }
 
@@ -196,6 +197,7 @@ no_t* arv_remove(no_t* no, chave_t chave) {
     int comp = compara_chave_valor(chave, no->valor);
     if(comp == 0) {
         if(no_folha(no)) {
+            libera_valor(no->valor);
             free(no);
             no = NULL;
         }else {
@@ -276,6 +278,7 @@ bool edb_busca(edb_t *edb, chave_t chave, valor_t *pvalor) {
     
     if(encontrado == NULL) return false;
 
+    libera_valor(*pvalor); // Necessário liberar o valor antigo
     *pvalor = encontrado->valor;
     return true;
 }

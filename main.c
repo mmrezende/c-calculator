@@ -10,14 +10,12 @@
 #include "edb.h"
 
 #define TAMANHO_MAXIMO 255
-#define OPERADORES "+-*/()^\0="
+#define OPERADORES "+-*/()^="
 #define ALGARISMOS "0123456789."
 #define CARACTERES "abcdefghijklmnopqrstuvwxyz"
 
 void erro(char* mensagem) {
-    printf("Erro: ");
-    printf(mensagem);
-    printf("\n");
+    printf("Erro: %s\n", mensagem);
     exit(EXIT_FAILURE);
 }
 
@@ -35,43 +33,47 @@ fila_t* processa_expressao(char* exp) {
         if(strchr(OPERADORES, *c) != NULL) {
             if(lendo_variavel){
                 atomo.tipo = VARIAVEL;
-                strcpy(atomo.variavel, buffer);
-                fila_insere(atomos, atomo);
+                atomo.variavel = strdup(buffer);
 
+                fila_insere(atomos, atomo);
                 lendo_variavel = false;
-                buffer[0] = '\0';
             }else if(lendo_numero) {
                 atomo.tipo = NUMERO;
                 atomo.numero = atof(buffer);
-                fila_insere(atomos, atomo);
 
+                fila_insere(atomos, atomo);
                 lendo_numero = false;
-                buffer[0] = '\0';
             }
+
             atomo.tipo = OPERADOR;
             atomo.operador = *c;
+            buffer[0] = '\0';
             fila_insere(atomos, atomo);
-        }else if(isalpha(*c) != 0 || (lendo_variavel && (strchr(ALGARISMOS, *c) != NULL || *c == '_'))) {
+        }else if(isalpha(*c) != 0 || (lendo_variavel && (isalnum(*c) || *c == '_'))) {
             if(lendo_numero) {
                 erro("Falta de operador");
             }
             lendo_variavel = true;
-            strcat(buffer, c);
+            strncat(buffer, c, 1);
         }else if(strchr(ALGARISMOS, *c) != NULL){
             if(lendo_variavel) {
                 erro("Falta de operador");
             }
             lendo_numero = true;
-            strcat(buffer, c);
+            strncat(buffer, c, 1);
         }
     }
 
     // Insere o conteúdo do buffer, caso esteja sendo lido
-    if(lendo_variavel) {
+    if(lendo_variavel){
+        atomo.tipo = VARIAVEL;
+        atomo.variavel = strdup(buffer);
 
+        fila_insere(atomos, atomo);
     }else if(lendo_numero) {
         atomo.tipo = NUMERO;
         atomo.numero = atof(buffer);
+
         fila_insere(atomos, atomo);
     }
 
@@ -83,19 +85,59 @@ fila_t* processa_expressao(char* exp) {
     return atomos;
 }
 
-void opera(char op, pilha_t* numeros) {
-    if(pilha_vazia(numeros)) {
-        erro("Falta de operandos");
+// Gerencia o acesso, obtenção e conversão de uma variável para um número qualquer
+dado_t resolve_operando(dado_t operando, edb_t* variaveis) {
+    if(operando.tipo == NUMERO) {
+        return operando;
     }
-    double n2 = pilha_remove(numeros).numero;
 
-    if(pilha_vazia(numeros)) {
-        erro("Falta de operandos");
+    valor_t aux;
+    aux.variavel = operando.variavel;
+//    printf("Buscando variável: %s\n", operando.variavel);
+    if(!edb_busca(variaveis, operando.variavel, &aux)) {
+        erro("Variável não definida");
     }
-    double n1 = pilha_remove(numeros).numero;
 
+    dado_t encontrado;
+    encontrado.tipo = NUMERO;
+    encontrado.numero = aux.numero;
+    return encontrado;
+}
+
+void opera(char op, pilha_t* operandos, edb_t* variaveis) {
+    double n2,n1;
     dado_t resultado;
     resultado.tipo = NUMERO;
+
+    if(pilha_vazia(operandos)) {
+        erro("Falta de operandos");
+    }
+    n2 = resolve_operando(pilha_remove(operandos), variaveis).numero;
+
+    if(pilha_vazia(operandos)) {
+        erro("Falta de operandos");
+    }
+    dado_t d1 = pilha_remove(operandos);
+
+    if(op == '=') {
+        if (d1.tipo != VARIAVEL) {
+            erro("Atribuição só é permitida para variáveis (ex: x = 23 + 2*b)");
+        }
+
+        resultado.numero = n2;
+        valor_t aux;
+        aux.numero = n2;
+        aux.variavel = d1.variavel;
+
+//        printf("Atribuindo valor: %lf à variável: %s\n", n2, d1.variavel);
+        edb_insere(variaveis, d1.variavel, aux);
+
+        pilha_insere(operandos, resultado);
+        return;
+    }
+
+    n1 = resolve_operando(d1, variaveis).numero;
+
     switch (op) {
         case '+':
             resultado.numero = n1 + n2;
@@ -117,12 +159,12 @@ void opera(char op, pilha_t* numeros) {
             erro("Operador não suportado");
     }
 
-    pilha_insere(numeros, resultado);
+    pilha_insere(operandos, resultado);
 }
 
 // Retorna true caso a entrada tenha precedência sobre o operador da pilha
 bool precede(char entrada, char pilha) {
-    if(pilha == '(') {
+    if(pilha == '(' || pilha == '=') {
         return true;
     }
     switch(entrada) {
@@ -136,12 +178,10 @@ bool precede(char entrada, char pilha) {
 }
 
 // Lógica da calculadora
-dado_t calcula(char* exp) {
+dado_t calcula(char* exp, edb_t* variaveis) {
     fila_t* expressao = processa_expressao(exp);
-
     pilha_t* operadores = pilha_cria();
-    pilha_t* numeros = pilha_cria();
-    edb_t* variaveis = edb_cria();
+    pilha_t* operandos = pilha_cria();
 
     while(!fila_vazia(expressao)) {
         dado_t atomo = fila_remove(expressao);
@@ -156,7 +196,7 @@ dado_t calcula(char* exp) {
                 while(!pilha_vazia(operadores)) {
                     operador = pilha_remove(operadores).operador;
                     if(operador == '(') break;
-                    opera(operador, numeros);
+                    opera(operador, operandos, variaveis);
                 }
 
                 if(pilha_vazia(operadores) && operador != '(') {
@@ -169,55 +209,60 @@ dado_t calcula(char* exp) {
                     if(operador == '(') {
                         erro("Falta de abertura de parênteses");
                     }
-                    opera(operador, numeros);
+                    opera(operador, operandos, variaveis);
                 }
                 break;
             default:
                 while(!pilha_vazia(operadores) && !precede(atomo.operador, pilha_topo(operadores).operador)) {
                     operador = pilha_remove(operadores).operador;
-                    opera(operador, numeros);
+                    opera(operador, operandos, variaveis);
                 }
                 pilha_insere(operadores, atomo);
                 break;
             }
         }else {
-            pilha_insere(numeros, atomo);
+            pilha_insere(operandos, atomo);
         }
     }
     
-    if(pilha_vazia(numeros)) {
+    if(pilha_vazia(operandos)) {
         erro("Falta de operandos");
     }
 
-    dado_t resultado = pilha_remove(numeros);
-    
-    if(!pilha_vazia(numeros)) {
+    dado_t resultado = resolve_operando(pilha_remove(operandos), variaveis);
+
+    if(!pilha_vazia(operandos)) {
         erro("Falta de operadores");
     }
 
     fila_destroi(expressao);
-    pilha_destroi(numeros);
+    pilha_destroi(operandos);
     pilha_destroi(operadores);
-    edb_destroi(variaveis);
 
     return resultado;
 }
 
-int main() {
-    // dado_t resultado = calcula("(1 + (1 + 2 * (3+5))^2)/2");
-
-    // imprime_dado(resultado);
-    // printf("\n");
-
+void calculadora_inicia() {
     char entrada[TAMANHO_MAXIMO];
+    edb_t* variaveis = edb_cria();
 
-    printf("Digite a expressão desejada: ");
-    fgets(entrada, sizeof(entrada), stdin);
-    dado_t resultado = calcula(entrada);
+    while(true) {
+        printf("Digite a expressão desejada (fim para encerrar): ");
+        fgets(entrada, sizeof(entrada) - 1, stdin);
 
-    printf("\n");
-    imprime_dado(resultado);
-    printf("\n");
+        if(strcmp(entrada,"fim\n") == 0) break;
 
+        dado_t resultado = calcula(entrada, variaveis);
+
+        printf("\nResultado: ");
+        imprime_dado(resultado);
+        printf("\n");
+    }
+
+    edb_destroi(variaveis);
+}
+
+int main() {
+    calculadora_inicia();
     return EXIT_SUCCESS;
 }

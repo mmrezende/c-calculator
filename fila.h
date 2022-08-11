@@ -26,6 +26,6 @@
     // retorna o próximo dado da fila f, sem removê-lo; aborta com erro brabo se a fila estiver vazia
     dado_t fila_proximo(fila_t *f);
 
-    // imprime todo o conteúdo da fila f
+    // imprime o conteúdo da fila f
     void fila_imprime(fila_t *f);
 #endif

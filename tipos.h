@@ -22,6 +22,9 @@ void imprime_dado(dado_t dado);
 // Imprime o conteúdo de um valor_t
 void imprime_valor(valor_t valor);
 
+// Desaloca o conteúdo armazenado num valor_t (caso necessário)
+void libera_valor(valor_t valor);
+
 /**
  * Função para comparar dois valores, que retorna:
  * =0 - se são iguais
