@@ -51,7 +51,7 @@ bool arv_vazia(no_t* no) {
 
 int altura(no_t *no)
 {
-    if (arv_vazia(no)) return 0;
+    if (arv_vazia(no)) return -1;
     return no->altura;
 }
 
@@ -236,9 +236,11 @@ no_t* arv_remove(no_t* no, chave_t chave) {
 
 // Percurso em profundidade com pré-visita à esquerda
 void arv_imprime(no_t* no, int tabs) {
-    if(no == NULL) return;
-
     printf("%*s", tabs * 5, "");
+    if(no == NULL) {
+        printf("-\n");
+        return;
+    }
     imprime_valor(no->valor);
 
     arv_imprime(no->dir, tabs+1);
